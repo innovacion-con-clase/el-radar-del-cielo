@@ -1,26 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El Radar del Cielo - Localizando la Luz</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* 1. CONFIGURACIÓN BASE */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+        /* 1. CONFIGURACIÓN BASE Y VARIABLES */
+        :root {
+            --primary: #fbbf24;
+            --primary-glow: rgba(251, 191, 36, 0.4);
+            --bg-dark: #020617;
+            --slide-bg: rgba(15, 23, 42, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-hover: rgba(251, 191, 36, 0.05);
+            --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            background-color: #020617;
-            color: #f8fafc;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             font-family: 'Montserrat', sans-serif;
             height: 100vh;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            perspective: 1000px;
+        }
+
+        /* FONDO ANIMADO */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 15% 50%, rgba(251, 191, 36, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.05), transparent 25%);
+            animation: pulse-bg 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-bg {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        /* PARTICULAS (Estrellas) */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image:
+                radial-gradient(1px 1px at 10% 10%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 20% 20%, #fff 100%, transparent),
+                radial-gradient(2px 2px at 30% 30%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 40% 40%, #fff 100%, transparent),
+                radial-gradient(2px 2px at 50% 50%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 60% 60%, #fff 100%, transparent),
+                radial-gradient(2px 2px at 70% 70%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 80% 80%, #fff 100%, transparent),
+                radial-gradient(1px 1px at 90% 90%, #fff 100%, transparent);
+            background-size: 550px 550px;
+            opacity: 0.3;
+            animation: drift 60s linear infinite;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(-550px);
+            }
         }
 
         /* CONTENEDOR DE SLIDES */
@@ -35,44 +115,52 @@
 
         .slide-container {
             position: absolute;
-            background-color: #0f172a;
-            border: 1px solid rgba(251, 191, 36, 0.1);
+            background-color: var(--slide-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 24px;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+            box-shadow:
+                0 40px 80px rgba(0, 0, 0, 0.6),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+
             display: flex;
             flex-direction: column;
-            height: 90vh;
+            height: 85vh;
             width: 90vw;
             max-width: 1280px;
             max-height: 720px;
             justify-content: center;
-            padding: 60px;
+            padding: 40px 60px;
+
             opacity: 0;
             visibility: hidden;
-            transform: scale(0.95);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.7s var(--transition-smooth);
             z-index: 1;
+            overflow: hidden;
         }
 
         .slide-container.active {
             opacity: 1;
             visibility: visible;
-            transform: scale(1);
+            transform: scale(1) translateY(0);
             z-index: 10;
         }
 
-        /* PORTADAS Y FONDOS PERSONALIZADOS */
+        /* FONDO ESPECIALES */
         #slide-1 {
-            background-image: linear-gradient(rgba(2, 6, 23, 0.4), rgba(2, 6, 23, 0.9)), url('https://i.imgur.com/4pB1xS4.png');
+            background-image: linear-gradient(rgba(2, 6, 23, 0.5), rgba(2, 6, 23, 0.8)), url('https://i.imgur.com/4pB1xS4.png');
             background-size: cover;
             background-position: center;
+            padding: 40px;
         }
 
         #slide-6 {
             background-image: linear-gradient(rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.9)), url('https://i.imgur.com/1JNNcLj.jpeg');
             background-size: cover;
             background-position: center;
-            border: none;
         }
 
         #slide-10 {
@@ -84,229 +172,563 @@
         .slide-container::after {
             content: '';
             position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 5px;
-            background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.8;
+            box-shadow: 0 -2px 10px var(--primary-glow);
         }
 
         /* TIPOGRAFÍA */
-        h1, h2, h3 { color: #fbbf24; font-family: 'Cinzel', serif; text-transform: uppercase; }
-        .slide-title {
-            font-size: clamp(24px, 4vw, 42px);
-            font-weight: 700;
+        h1,
+        h2,
+        h3 {
+            color: var(--primary);
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-title {
+            font-size: clamp(42px, 8vw, 90px);
+            margin-bottom: 10px;
+            background: linear-gradient(to bottom, #fff, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.3));
+        }
+
+        .subtitle {
+            font-size: clamp(14px, 3vw, 24px);
+            color: var(--primary);
+            letter-spacing: 8px;
             margin-bottom: 30px;
-            border-left: 8px solid #fbbf24;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .slide-title {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 700;
+            margin-bottom: 40px;
+            border-left: 6px solid var(--primary);
             padding-left: 25px;
             letter-spacing: 2px;
+            position: relative;
         }
-        p { font-size: clamp(16px, 2vw, 22px); line-height: 1.6; color: #cbd5e1; font-weight: 300; }
 
-        /* NAVEGACIÓN */
+        .slide-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-glow), transparent);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        p {
+            font-size: clamp(16px, 1.8vw, 20px);
+            line-height: 1.7;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* ANIMACIONES DE CONTENIDO */
+        .slide-content>* {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s var(--transition-smooth);
+        }
+
+        .slide-container.active .slide-content>*:nth-child(1) {
+            transition-delay: 0.3s;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-container.active .slide-content>*:nth-child(2) {
+            transition-delay: 0.5s;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-container.active .slide-content>*:nth-child(3) {
+            transition-delay: 0.7s;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-container.active .slide-content>*:nth-child(4) {
+            transition-delay: 0.9s;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* NAVEGACIÓN Y CONTROLES */
         .nav-controls {
             position: fixed;
-            bottom: 30px;
-            right: 50%;
-            transform: translateX(50%);
+            /* Default Desktop: Centered vertically on sides */
+            top: 50%;
+            left: 0;
+            width: 100%;
+            transform: translateY(-50%);
             display: flex;
-            gap: 20px;
+            justify-content: space-between;
+            padding: 0 50px;
             z-index: 100;
+            pointer-events: none;
+            /* Permite clic a través del contenedor vacío */
         }
 
         .nav-btn {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #fbbf24;
-            color: #fbbf24;
-            width: 60px;
-            height: 60px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
             transition: all 0.3s ease;
+            pointer-events: auto;
+            /* Rehabilita clic en botones */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
-        .nav-btn:hover { background: #fbbf24; color: #020617; }
-        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #475569; color: #475569; }
+        .nav-btn:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 25px var(--primary-glow);
+            transform: scale(1.15);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0;
+            /* Ocultar completamente si no es necesario, o bajar opacidad */
+            pointer-events: none;
+        }
 
         .progress-indicator {
             position: fixed;
-            top: 30px;
+            top: 40px;
             right: 50px;
             font-family: 'Cinzel', serif;
-            color: #fbbf24;
+            color: var(--primary);
             font-size: 18px;
             z-index: 100;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(5px);
         }
 
-        /* CARDS Y LAYOUTS */
+        /* TARJETAS BIBLICAS EXPANDIBLES (ACORDEÓN) */
         .two-column {
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
-            gap: 40px;
+            gap: 50px;
             align-items: center;
         }
 
         .bible-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(251, 191, 36, 0.15);
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px 30px;
+            border: 1px solid var(--glass-border);
             cursor: pointer;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .bible-card.expanded { background: rgba(251, 191, 36, 0.08); border-color: #fbbf24; }
+        .bible-card:hover {
+            background: var(--card-hover);
+            border-color: rgba(251, 191, 36, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .bible-card h3 {
+            font-size: 18px;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            /* Para que el click sea en el card */
+        }
+
+        /* INDICADOR EXPANDIR/COLAPSAR */
+        .bible-card h3::after {
+            content: '+';
+            font-size: 24px;
+            font-weight: 300;
+            opacity: 0.7;
+            transition: transform 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .bible-card.expanded h3::after {
+            content: '−';
+            /* Usar el caracter minus real o rotar el + */
+            transform: rotate(180deg);
+            color: var(--primary);
+            opacity: 1;
+        }
+
+        .bible-card.expanded {
+            background: rgba(251, 191, 36, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .bible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1), opacity 0.4s ease;
+            opacity: 0;
+        }
+
+        .bible-card.expanded .bible-content {
+            max-height: 500px;
+            /* Altura suficiente */
+            opacity: 1;
+            margin-top: 15px;
+            /* Margen solo cuando está abierto */
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease;
+        }
 
         .image-wrapper {
             border-radius: 20px;
             overflow: hidden;
-            border: 1px solid rgba(251, 191, 36, 0.3);
+            border: 1px solid rgba(251, 191, 36, 0.2);
             height: 400px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
         }
-        .image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+        .image-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+
+        .image-wrapper:hover img {
+            transform: scale(1.05);
+        }
 
         .revelation-box {
             margin-top: 15px;
-            padding-top: 10px;
+            padding-top: 15px;
             border-top: 1px dashed rgba(251, 191, 36, 0.3);
-            font-size: 18px;
-            color: #fbbf24;
+            font-size: 16px;
+            color: var(--primary);
             font-weight: 600;
+            font-style: italic;
         }
 
         .quote-image {
             max-width: 100%;
-            max-height: 400px;
+            max-height: 350px;
             border-radius: 15px;
             margin: 0 auto;
             display: block;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
         }
 
-        .highlight-text { color: #fbbf24; font-weight: 700; }
+        .highlight-text {
+            color: var(--primary);
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+        }
+
+        .separator {
+            width: 80px;
+            height: 3px;
+            background: var(--primary);
+            margin: 0 auto 30px;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* RESPONSIVIDAD MÓVIL */
+        /* CLASES PARA SLIDES DE IMAGEN COMPLETA */
+        .full-image-slide {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .feature-image {
+            max-width: 100%;
+            max-height: 75vh;
+            width: auto;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--glass-border);
+            object-fit: contain;
+            /* Asegurar que la animación base se aplique */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s var(--transition-smooth);
+        }
+
+        /* Asegurar que el selector de animación activo funcione específicamente para estas imágenes */
+        .slide-container.active .full-image-slide .feature-image {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.3s;
+        }
 
         /* RESPONSIVIDAD MÓVIL */
         @media (max-width: 768px) {
-            .two-column { grid-template-columns: 1fr; }
-            .image-wrapper { display: none; }
-            .slide-container { padding: 30px; height: 85vh; width: 95vw; }
-            .nav-btn { width: 50px; height: 50px; font-size: 18px; }
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .image-wrapper {
+                height: 250px;
+                margin-bottom: 20px;
+            }
+
+            .slide-container {
+                padding: 30px 20px 90px 20px;
+                /* Padding extra abajo para controles */
+                height: 90vh;
+                /* Ocupar más altura en móvil */
+                width: 95vw;
+            }
+
+            /* Reposicionar controles al fondo en móvil */
+            .nav-controls {
+                top: auto;
+                bottom: 20px;
+                transform: none;
+                justify-content: center;
+                gap: 40px;
+                padding: 0;
+            }
+
+            .nav-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
+
+            .slide-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+
+            .progress-indicator {
+                top: 20px;
+                right: 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <div class="progress-indicator"><span id="current-index">1</span> / 10</div>
+    <div class="ambient-bg"></div>
+    <div class="stars"></div>
 
-    <div class="presentation-wrapper">
+    <div class="progress-indicator"><span id="current-index">1</span> / 13</div>
+
+    <div class="presentation-wrapper" id="gesture-zone">
         <!-- Slide 1: Portada -->
         <div class="slide-container active" id="slide-1">
-            <div style="text-align: center;">
-                <h1 style="font-size: clamp(40px, 8vw, 90px); margin-bottom: 10px;">El Radar del Cielo</h1>
-                <h2 style="font-size: clamp(14px, 3vw, 32px); color: #fbbf24; letter-spacing: 10px; margin-bottom: 30px;">LOCALIZANDO LA LUZ</h2>
-                <p style="text-transform: uppercase; letter-spacing: 4px; opacity: 0.8;">Cuando Dios decide invadir tu propia noche</p>
+            <div class="slide-content" style="text-align: center;">
+                <h1 class="main-title">El Radar del Cielo</h1>
+                <h2 class="subtitle">LOCALIZANDO LA LUZ</h2>
+                <div class="separator"></div>
+                <p style="text-transform: uppercase; letter-spacing: 4px; opacity: 0.9; font-weight: 400;">Cuando Dios
+                    decide invadir tu propia noche</p>
             </div>
         </div>
 
         <!-- Slide 2: El Susurro -->
         <div class="slide-container" id="slide-2">
-            <div style="text-align: center;">
+            <div class="slide-content" style="text-align: center;">
                 <h2 style="font-size: clamp(30px, 6vw, 60px); margin-bottom: 20px;">El Susurro de los Siglos</h2>
-                <div style="width: 80px; height: 3px; background: #fbbf24; margin: 0 auto 30px;"></div>
-                <p>"Dios no improvisa. El cielo ha estado gritando señales mucho antes de que aprendiéramos a mirar hacia arriba."</p>
+                <div class="separator"></div>
+                <p style="font-size: clamp(18px, 3vw, 26px);">"Dios no improvisa. El cielo ha estado gritando señales
+                    mucho antes de que aprendiéramos a mirar hacia arriba."</p>
             </div>
         </div>
 
         <!-- Slide 3: Profecía Textos -->
         <div class="slide-container" id="slide-3">
-            <h2 class="slide-title">La Señal que no se Apaga</h2>
-            <div class="bible-card" onclick="this.classList.toggle('expanded')">
-                <h3>Números 24:17 & Isaías 7:14</h3>
-                <div class="bible-content">
-                    <p>"...<span class="highlight-text">saldrá ESTRELLA de Jacob</span>... ¡Miren! La virgen concebirá un niño y lo llamarán <span class="highlight-text">Emanuel</span>."</p>
-                    <div class="revelation-box">LA REVELACIÓN: Muchos esperan un evento, pero Dios siempre envía una Persona.</div>
+            <div class="slide-content">
+                <h2 class="slide-title">La Señal que no se Apaga</h2>
+                <!-- Tarjeta abierta por defecto para enseñar la interacción -->
+                <div class="bible-card expanded" onclick="toggleCard(this)">
+                    <h3>Números 24:17 & Isaías 7:14</h3>
+                    <div class="bible-content">
+                        <p>"...<span class="highlight-text">saldrá ESTRELLA de Jacob</span>... ¡Miren! La virgen
+                            concebirá un niño y lo llamarán <span class="highlight-text">Emanuel</span>."</p>
+                        <div class="revelation-box">LA REVELACIÓN: Muchos esperan un evento, pero Dios siempre envía una
+                            Persona.</div>
+                    </div>
                 </div>
-            </div>
-            <div class="bible-card" onclick="this.classList.toggle('expanded')">
-                <h3>Isaías 9:2</h3>
-                <div class="bible-content">
-                    <p>"El pueblo que andaba en <span class="highlight-text">tinieblas vio gran luz</span>; luz resplandeció..."</p>
-                    <div class="revelation-box">LA REVELACIÓN: La luz aparece cuando ya no tienes más opciones.</div>
+                <!-- Tarjeta cerrada para que el usuario interactúe -->
+                <div class="bible-card" onclick="toggleCard(this)">
+                    <h3>Isaías 9:2</h3>
+                    <div class="bible-content">
+                        <p>"El pueblo que andaba en <span class="highlight-text">tinieblas vio gran luz</span>; luz
+                            resplandeció..."</p>
+                        <div class="revelation-box">LA REVELACIÓN: La luz aparece cuando ya no tienes más opciones.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 4: El Vientre de lo Imposible -->
         <div class="slide-container" id="slide-4">
-            <div style="text-align: center;">
+            <div class="slide-content" style="text-align: center;">
                 <h2 style="font-size: clamp(30px, 6vw, 60px); margin-bottom: 20px;">El Vientre de lo Imposible</h2>
-                <p>"Cuando el cielo elige a una desconocida para cargar el peso de la eternidad."</p>
+                <div class="separator"></div>
+                <p style="font-size: clamp(20px, 3vw, 28px);">"Cuando el cielo elige a una desconocida para cargar el
+                    peso de la eternidad."</p>
             </div>
         </div>
 
         <!-- Slide 5: Respuesta de María -->
         <div class="slide-container" id="slide-5">
-            <h2 class="slide-title">La Respuesta del Alma</h2>
-            <div class="two-column">
-                <div class="image-wrapper">
-                    <img src="https://i.imgur.com/UaK76Hd.jpeg" alt="Respuesta de María">
+            <div class="slide-content">
+                <h2 class="slide-title">La Respuesta del Alma</h2>
+                <div class="two-column">
+                    <div class="image-wrapper">
+                        <img src="https://i.imgur.com/UaK76Hd.jpeg" alt="Respuesta de María" loading="lazy">
+                    </div>
+                    <div class="bible-card expanded" onclick="toggleCard(this)">
+                        <h3>Lucas 1:35-38</h3>
+                        <div class="bible-content">
+                            <p>"—El Espíritu Santo vendrá sobre ti... María dijo: <span class="highlight-text">Hágase
+                                    conmigo conforme a tu palabra.</span>"</p>
+                            <div class="revelation-box">Dios no busca tu capacidad, busca tu disponibilidad.</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bible-card expanded">
-                    <h3>Lucas 1:35-38</h3>
-                    <p>"—El Espíritu Santo vendrá sobre ti... María dijo: <span class="highlight-text">Hágase conmigo conforme a tu palabra.</span>"</p>
-                    <div class="revelation-box">Dios no busca tu capacidad, busca tu disponibilidad.</div>
-                </div>
+            </div>
+        </div>
+
+        <!-- Slide Extra 1: Imagen Mapa -->
+        <div class="slide-container" id="slide-extra-1">
+            <div class="slide-content full-image-slide">
+                <img src="https://i.imgur.com/maAeEHg.png" alt="Mapa Radar" class="feature-image">
+            </div>
+        </div>
+
+        <!-- Slide Extra 2: Imagen Segunda -->
+        <div class="slide-container" id="slide-extra-2">
+            <div class="slide-content full-image-slide">
+                <img src="https://i.imgur.com/k8a6kaS.png" alt="Imagen Extra" class="feature-image">
+            </div>
+        </div>
+
+        <!-- Slide Extra 3: Imagen Tercera -->
+        <div class="slide-container" id="slide-extra-3">
+            <div class="slide-content full-image-slide">
+                <img src="https://i.imgur.com/W6tHKfH.png" alt="Imagen Tercera" class="feature-image">
             </div>
         </div>
 
         <!-- Slide 6: Perseguidores de la Luz -->
         <div class="slide-container" id="slide-6">
-            <div style="text-align: center; background: rgba(2, 6, 23, 0.5); padding: 40px; border-radius: 20px;">
-                <h2 style="font-size: clamp(30px, 6vw, 60px); margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8);">Perseguidores de la Luz</h2>
-                <p style="color: white; font-weight: 400; text-shadow: 1px 1px 5px rgba(0,0,0,0.8);">"Los religiosos discuten el lugar del nacimiento; los buscadores caminan hasta encontrarlo."</p>
+            <div class="slide-content"
+                style="text-align: center; background: rgba(2, 6, 23, 0.6); padding: 40px; border-radius: 20px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);">
+                <h2
+                    style="font-size: clamp(30px, 6vw, 60px); margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8);">
+                    Perseguidores de la Luz</h2>
+                <div class="separator"></div>
+                <p
+                    style="color: white; font-weight: 400; text-shadow: 1px 1px 5px rgba(0,0,0,0.8); font-size: clamp(18px, 2.5vw, 24px);">
+                    "Los religiosos discuten el lugar del nacimiento; los buscadores caminan hasta encontrarlo."</p>
             </div>
         </div>
 
         <!-- Slide 7: El Radar en Acción -->
         <div class="slide-container" id="slide-7">
-            <h2 class="slide-title">El Radar en Acción</h2>
-            <div class="two-column">
-                <div class="bible-card expanded" style="background: rgba(15, 23, 42, 0.9);">
-                    <h3>Mateo 2:9-11</h3>
-                    <p>"La estrella los guió hasta que se detuvo... <span class="highlight-text">se inclinaron y lo adoraron.</span>"</p>
-                    <div class="revelation-box">¿Eres un experto sentado en el palacio o un buscador en el desierto?</div>
-                </div>
-                <div class="image-wrapper">
-                    <img src="https://i.imgur.com/fHVxYAU.png" alt="Reyes guiados">
+            <div class="slide-content">
+                <h2 class="slide-title">El Radar en Acción</h2>
+                <div class="two-column">
+                    <div class="bible-card expanded" style="background: rgba(15, 23, 42, 0.8);"
+                        onclick="toggleCard(this)">
+                        <h3>Mateo 2:9-11</h3>
+                        <div class="bible-content">
+                            <p>"La estrella los guió hasta que se detuvo... <span class="highlight-text">se inclinaron y
+                                    lo adoraron.</span>"</p>
+                            <div class="revelation-box">¿Eres un experto sentado en el palacio o un buscador en el
+                                desierto?</div>
+                        </div>
+                    </div>
+                    <div class="image-wrapper">
+                        <img src="https://i.imgur.com/fHVxYAU.png" alt="Reyes guiados" loading="lazy">
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 8: Frase Papa Francisco -->
         <div class="slide-container" id="slide-8">
-            <div style="text-align: center;">
-                <h2 class="slide-title" style="border: none; padding: 0; text-align: center;">Prioridades del Corazón</h2>
-                <img src="https://i.imgur.com/Lz8emZd.png" alt="Frase Papa Francisco" class="quote-image">
-                <p style="margin-top: 30px; font-style: italic; color: #fbbf24;">¿Qué pesa más hoy en tu corazón?</p>
+            <div class="slide-content" style="text-align: center;">
+                <h2 class="slide-title" style="border: none; padding: 0; text-align: center;">Prioridades del Corazón
+                </h2>
+                <img src="https://i.imgur.com/Lz8emZd.png" alt="Frase Papa Francisco" class="quote-image"
+                    loading="lazy">
+                <h3
+                    style="margin-top: 30px; font-style: italic; color: var(--primary); opacity: 0; animation: fadeIn 1s forwards 0.5s;">
+                    ¿Qué pesa más hoy en tu corazón?</h3>
             </div>
         </div>
 
         <!-- Slide 9: Conclusión -->
         <div class="slide-container" id="slide-9">
-            <div style="text-align: center;">
+            <div class="slide-content" style="text-align: center;">
                 <h2 style="font-size: clamp(40px, 8vw, 80px); color: #fff;">Emanuel</h2>
-                <h3 style="color: #fbbf24; letter-spacing: 10px; margin-bottom: 40px;">EL DIOS QUE SE MUDÓ A TU CASA</h3>
-                <p style="font-style: italic; max-width: 800px; margin: 0 auto;">"Dios empacó Sus maletas y decidió vivir en medio de tu caos."</p>
+                <h3 style="color: var(--primary); letter-spacing: 12px; margin-bottom: 40px; font-weight: 300;">EL DIOS
+                    QUE SE MUDÓ A TU CASA</h3>
+                <div class="separator"></div>
+                <p style="font-style: italic; max-width: 800px; margin: 0 auto; font-size: clamp(20px, 3vw, 32px);">
+                    "Dios empacó Sus maletas y decidió vivir en medio de tu caos."</p>
             </div>
         </div>
 
         <!-- Slide 10: Agradecimiento -->
         <div class="slide-container" id="slide-10">
-            <div style="text-align: center;">
+            <div class="slide-content" style="text-align: center;">
                 <h1 style="font-size: clamp(40px, 8vw, 90px); margin-bottom: 20px;">Muchas Gracias</h1>
-                <div style="width: 150px; height: 3px; background: #fbbf24; margin: 0 auto 30px;"></div>
-                <h3 style="color: #f8fafc; letter-spacing: 5px;">¡Dios te bendiga!</h3>
+                <div class="separator" style="width: 150px;"></div>
+                <h3 style="color: #f8fafc; letter-spacing: 5px; margin-bottom: 40px;">¡Dios te bendiga!</h3>
                 <p style="margin-top: 50px; font-size: 18px; opacity: 0.7;">Buscando la Luz juntos.</p>
             </div>
         </div>
@@ -314,7 +736,8 @@
 
     <!-- Controles -->
     <div class="nav-controls">
-        <button class="nav-btn" id="prev-btn" disabled aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="nav-btn" id="prev-btn" disabled aria-label="Anterior"><i
+                class="fa-solid fa-chevron-left"></i></button>
         <button class="nav-btn" id="next-btn" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
@@ -329,39 +752,59 @@
             slides.forEach((slide, index) => {
                 slide.classList.toggle('active', index === currentSlide);
             });
-            
+
             currentIndexEl.textContent = currentSlide + 1;
             prevBtn.disabled = currentSlide === 0;
             nextBtn.disabled = currentSlide === slides.length - 1;
         }
 
-        prevBtn.addEventListener('click', () => {
-            if (currentSlide > 0) {
+        const navigate = (direction) => {
+            if (direction === 'next' && currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlides();
+            } else if (direction === 'prev' && currentSlide > 0) {
                 currentSlide--;
                 updateSlides();
             }
-        });
+        };
 
-        nextBtn.addEventListener('click', () => {
-            if (currentSlide < slides.length - 1) {
-                currentSlide++;
-                updateSlides();
-            }
-        });
+        prevBtn.addEventListener('click', () => navigate('prev'));
+        nextBtn.addEventListener('click', () => navigate('next'));
 
+        // Teclado
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                if (currentSlide < slides.length - 1) {
-                    currentSlide++;
-                    updateSlides();
-                }
-            } else if (e.key === 'ArrowLeft') {
-                if (currentSlide > 0) {
-                    currentSlide--;
-                    updateSlides();
-                }
-            }
+            if (e.key === 'ArrowRight' || e.key === ' ') navigate('next');
+            else if (e.key === 'ArrowLeft') navigate('prev');
         });
+
+        // Lógica de Tarjetas Expandibles (Acordeón)
+        window.toggleCard = function (element) {
+            // Opcional: Cerrar otros si se quiere comportamiento de acordeón estricto
+            // document.querySelectorAll('.bible-card').forEach(c => {
+            //     if(c !== element) c.classList.remove('expanded');
+            // });
+            element.classList.toggle('expanded');
+        };
+
+        // Soporte Swipe Móvil
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const gestureZone = document.getElementById('gesture-zone');
+
+        gestureZone.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        gestureZone.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, false);
+
+        function handleGesture() {
+            if (touchEndX < touchStartX - 50) navigate('next'); // Swipe Left -> Next
+            if (touchEndX > touchStartX + 50) navigate('prev'); // Swipe Right -> Prev
+        }
     </script>
 </body>
+
 </html>
