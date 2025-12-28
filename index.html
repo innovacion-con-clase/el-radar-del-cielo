@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Radar del Cielo - Localizando la Luz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 1. CONFIGURACIÓN BASE */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: #020617;
+            color: #f8fafc;
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* CONTENEDOR DE SLIDES */
+        .presentation-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide-container {
+            position: absolute;
+            background-color: #0f172a;
+            border: 1px solid rgba(251, 191, 36, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            width: 90vw;
+            max-width: 1280px;
+            max-height: 720px;
+            justify-content: center;
+            padding: 60px;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            z-index: 10;
+        }
+
+        /* PORTADAS Y FONDOS PERSONALIZADOS */
+        #slide-1 {
+            background-image: linear-gradient(rgba(2, 6, 23, 0.4), rgba(2, 6, 23, 0.9)), url('https://i.imgur.com/4pB1xS4.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #slide-6 {
+            background-image: linear-gradient(rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.9)), url('https://i.imgur.com/1JNNcLj.jpeg');
+            background-size: cover;
+            background-position: center;
+            border: none;
+        }
+
+        #slide-10 {
+            background-image: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.9)), url('https://i.imgur.com/4pB1xS4.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+        }
+
+        /* TIPOGRAFÍA */
+        h1, h2, h3 { color: #fbbf24; font-family: 'Cinzel', serif; text-transform: uppercase; }
+        .slide-title {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 700;
+            margin-bottom: 30px;
+            border-left: 8px solid #fbbf24;
+            padding-left: 25px;
+            letter-spacing: 2px;
+        }
+        p { font-size: clamp(16px, 2vw, 22px); line-height: 1.6; color: #cbd5e1; font-weight: 300; }
+
+        /* NAVEGACIÓN */
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 50%;
+            transform: translateX(50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #fbbf24;
+            color: #fbbf24;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover { background: #fbbf24; color: #020617; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #475569; color: #475569; }
+
+        .progress-indicator {
+            position: fixed;
+            top: 30px;
+            right: 50px;
+            font-family: 'Cinzel', serif;
+            color: #fbbf24;
+            font-size: 18px;
+            z-index: 100;
+        }
+
+        /* CARDS Y LAYOUTS */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .bible-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(251, 191, 36, 0.15);
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .bible-card.expanded { background: rgba(251, 191, 36, 0.08); border-color: #fbbf24; }
+
+        .image-wrapper {
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            height: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+        .revelation-box {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(251, 191, 36, 0.3);
+            font-size: 18px;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .quote-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .highlight-text { color: #fbbf24; font-weight: 700; }
+
+        /* RESPONSIVIDAD MÓVIL */
+        @media (max-width: 768px) {
+            .two-column { grid-template-columns: 1fr; }
+            .image-wrapper { display: none; }
+            .slide-container { padding: 30px; height: 85vh; width: 95vw; }
+            .nav-btn { width: 50px; height: 50px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-indicator"><span id="current-index">1</span> / 10</div>
+
+    <div class="presentation-wrapper">
+        <!-- Slide 1: Portada -->
+        <div class="slide-container active" id="slide-1">
+            <div style="text-align: center;">
+                <h1 style="font-size: clamp(40px, 8vw, 90px); margin-bottom: 10px;">El Radar del Cielo</h1>
+                <h2 style="font-size: clamp(14px, 3vw, 32px); color: #fbbf24; letter-spacing: 10px; margin-bottom: 30px;">LOCALIZANDO LA LUZ</h2>
+                <p style="text-transform: uppercase; letter-spacing: 4px; opacity: 0.8;">Cuando Dios decide invadir tu propia noche</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: El Susurro -->
+        <div class="slide-container" id="slide-2">
+            <div style="text-align: center;">
+                <h2 style="font-size: clamp(30px, 6vw, 60px); margin-bottom: 20px;">El Susurro de los Siglos</h2>
+                <div style="width: 80px; height: 3px; background: #fbbf24; margin: 0 auto 30px;"></div>
+                <p>"Dios no improvisa. El cielo ha estado gritando señales mucho antes de que aprendiéramos a mirar hacia arriba."</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Profecía Textos -->
+        <div class="slide-container" id="slide-3">
+            <h2 class="slide-title">La Señal que no se Apaga</h2>
+            <div class="bible-card" onclick="this.classList.toggle('expanded')">
+                <h3>Números 24:17 & Isaías 7:14</h3>
+                <div class="bible-content">
+                    <p>"...<span class="highlight-text">saldrá ESTRELLA de Jacob</span>... ¡Miren! La virgen concebirá un niño y lo llamarán <span class="highlight-text">Emanuel</span>."</p>
+                    <div class="revelation-box">LA REVELACIÓN: Muchos esperan un evento, pero Dios siempre envía una Persona.</div>
+                </div>
+            </div>
+            <div class="bible-card" onclick="this.classList.toggle('expanded')">
+                <h3>Isaías 9:2</h3>
+                <div class="bible-content">
+                    <p>"El pueblo que andaba en <span class="highlight-text">tinieblas vio gran luz</span>; luz resplandeció..."</p>
+                    <div class="revelation-box">LA REVELACIÓN: La luz aparece cuando ya no tienes más opciones.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: El Vientre de lo Imposible -->
+        <div class="slide-container" id="slide-4">
+            <div style="text-align: center;">
+                <h2 style="font-size: clamp(30px, 6vw, 60px); margin-bottom: 20px;">El Vientre de lo Imposible</h2>
+                <p>"Cuando el cielo elige a una desconocida para cargar el peso de la eternidad."</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Respuesta de María -->
+        <div class="slide-container" id="slide-5">
+            <h2 class="slide-title">La Respuesta del Alma</h2>
+            <div class="two-column">
+                <div class="image-wrapper">
+                    <img src="https://i.imgur.com/UaK76Hd.jpeg" alt="Respuesta de María">
+                </div>
+                <div class="bible-card expanded">
+                    <h3>Lucas 1:35-38</h3>
+                    <p>"—El Espíritu Santo vendrá sobre ti... María dijo: <span class="highlight-text">Hágase conmigo conforme a tu palabra.</span>"</p>
+                    <div class="revelation-box">Dios no busca tu capacidad, busca tu disponibilidad.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Perseguidores de la Luz -->
+        <div class="slide-container" id="slide-6">
+            <div style="text-align: center; background: rgba(2, 6, 23, 0.5); padding: 40px; border-radius: 20px;">
+                <h2 style="font-size: clamp(30px, 6vw, 60px); margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8);">Perseguidores de la Luz</h2>
+                <p style="color: white; font-weight: 400; text-shadow: 1px 1px 5px rgba(0,0,0,0.8);">"Los religiosos discuten el lugar del nacimiento; los buscadores caminan hasta encontrarlo."</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: El Radar en Acción -->
+        <div class="slide-container" id="slide-7">
+            <h2 class="slide-title">El Radar en Acción</h2>
+            <div class="two-column">
+                <div class="bible-card expanded" style="background: rgba(15, 23, 42, 0.9);">
+                    <h3>Mateo 2:9-11</h3>
+                    <p>"La estrella los guió hasta que se detuvo... <span class="highlight-text">se inclinaron y lo adoraron.</span>"</p>
+                    <div class="revelation-box">¿Eres un experto sentado en el palacio o un buscador en el desierto?</div>
+                </div>
+                <div class="image-wrapper">
+                    <img src="https://i.imgur.com/fHVxYAU.png" alt="Reyes guiados">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Frase Papa Francisco -->
+        <div class="slide-container" id="slide-8">
+            <div style="text-align: center;">
+                <h2 class="slide-title" style="border: none; padding: 0; text-align: center;">Prioridades del Corazón</h2>
+                <img src="https://i.imgur.com/Lz8emZd.png" alt="Frase Papa Francisco" class="quote-image">
+                <p style="margin-top: 30px; font-style: italic; color: #fbbf24;">¿Qué pesa más hoy en tu corazón?</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Conclusión -->
+        <div class="slide-container" id="slide-9">
+            <div style="text-align: center;">
+                <h2 style="font-size: clamp(40px, 8vw, 80px); color: #fff;">Emanuel</h2>
+                <h3 style="color: #fbbf24; letter-spacing: 10px; margin-bottom: 40px;">EL DIOS QUE SE MUDÓ A TU CASA</h3>
+                <p style="font-style: italic; max-width: 800px; margin: 0 auto;">"Dios empacó Sus maletas y decidió vivir en medio de tu caos."</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Agradecimiento -->
+        <div class="slide-container" id="slide-10">
+            <div style="text-align: center;">
+                <h1 style="font-size: clamp(40px, 8vw, 90px); margin-bottom: 20px;">Muchas Gracias</h1>
+                <div style="width: 150px; height: 3px; background: #fbbf24; margin: 0 auto 30px;"></div>
+                <h3 style="color: #f8fafc; letter-spacing: 5px;">¡Dios te bendiga!</h3>
+                <p style="margin-top: 50px; font-size: 18px; opacity: 0.7;">Buscando la Luz juntos.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="nav-controls">
+        <button class="nav-btn" id="prev-btn" disabled aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="nav-btn" id="next-btn" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentIndexEl = document.getElementById('current-index');
+        let currentSlide = 0;
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            
+            currentIndexEl.textContent = currentSlide + 1;
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlides();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlides();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < slides.length - 1) {
+                    currentSlide++;
+                    updateSlides();
+                }
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateSlides();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
